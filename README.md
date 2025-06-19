@@ -123,7 +123,7 @@ python user_server.py
 - Crime data: [Source as per your dataset]
 - Route safety: [OpenRouteService](https://openrouteservice.org/)
 <<<<<<< HEAD
-- Developed by: [Sanya Vashsith] 
+
 =======
 - Developed by: [Sanya Vashsith] 
 >>>>>>> 8a81acc6dad5e0a921337ee7e01145f12b83011c
