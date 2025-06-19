@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Safe Route</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+      crossorigin=""
+    ></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      button {
+        padding: 8px 16px;
+        margin-right: 10px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      #submitBtn:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+      #submitBtn {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+      }
+      #resetBtn {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 4px;
+      }
+      #riskScore {
+        margin-top: 20px;
+        font-size: 18px;
+        font-weight: bold;
+        color: #2c3e50;
+      }
+    </style>
+</head>
+<body>
+    <h1>Find Safe Route</h1>
+    <p>Click on the map to select <b>start</b> and <b>end</b> points <i>in order</i>.</p>
+    <form method="POST" id="routeForm">
+        <!-- Hidden inputs to hold coordinates -->
+        <input type="hidden" name="start_lat" id="start_lat" required>
+        <input type="hidden" name="start_lng" id="start_lng" required>
+        <input type="hidden" name="end_lat" id="end_lat" required>
+        <input type="hidden" name="end_lng" id="end_lng" required>
+
+        <button type="submit" id="submitBtn" disabled>Find Route</button>
+        <button type="button" id="resetBtn">Reset Points</button>
+    </form>
+
+    <div id="map" style="height: 500px; margin-top: 20px;"></div>
+
+    {% if risk is not none %}
+      <div id="riskScore">
+        🛡️ Route Risk Score: {{ risk }} <br>
+        <small>Lower is safer. Computed based on crimes near your path.</small>
+      </div>
+    {% endif %}
+
+    <script>
+      var map = L.map('map').setView([28.6139, 77.2090], 12);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      var markers = [];
+      var clickCount = 0;
+      var submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+
+      map.on('click', function(e) {
+          if (clickCount >= 2) {
+              alert('You have already selected start and end points. Please reset to select again.');
+              return;
+          }
+
+          var lat = e.latlng.lat.toFixed(6);
+          var lng = e.latlng.lng.toFixed(6);
+
+          var marker = L.marker([lat, lng]).addTo(map);
+          marker.bindPopup(clickCount === 0 ? "Start Point" : "End Point").openPopup();
+          markers.push(marker);
+
+          if (clickCount === 0) {
+              document.getElementById('start_lat').value = lat;
+              document.getElementById('start_lng').value = lng;
+          } else if (clickCount === 1) {
+              document.getElementById('end_lat').value = lat;
+              document.getElementById('end_lng').value = lng;
+              submitBtn.disabled = false;
+          }
+
+          clickCount++;
+      });
+
+      document.getElementById('resetBtn').addEventListener('click', function() {
+          markers.forEach(function(marker) {
+              map.removeLayer(marker);
+          });
+          markers = [];
+          clickCount = 0;
+
+          document.getElementById('start_lat').value = '';
+          document.getElementById('start_lng').value = '';
+          document.getElementById('end_lat').value = '';
+          document.getElementById('end_lng').value = '';
+
+          submitBtn.disabled = true;
+      });
+
+      {% if route %}
+        var coords = {{ route['features'][0]['geometry']['coordinates'] | tojson }};
+        var latlngs = coords.map(function(coord) {
+            return [coord[1], coord[0]];
+        });
+
+        L.polyline(latlngs, {color: 'blue', weight: 5}).addTo(map);
+        map.fitBounds(latlngs);
+      {% endif %}
+    </script>
+</body>
+</html>

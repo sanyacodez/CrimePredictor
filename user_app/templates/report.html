@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Report Incident</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+<body>
+    <h1>Report an Incident</h1>
+    <form method="POST">
+        <label for="type">Incident Type:</label><br>
+        <input type="text" id="type" name="type" required><br><br>
+
+        <label for="date">Date:</label><br>
+        <input type="date" id="date" name="date" required><br><br>
+
+        <label for="time">Time:</label><br>
+        <input type="time" id="time" name="time" required><br><br>
+
+        <label for="lat">Latitude:</label><br>
+        <input type="number" step="any" id="lat" name="lat" required><br><br>
+
+        <label for="lng">Longitude:</label><br>
+        <input type="number" step="any" id="lng" name="lng" required><br><br>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="map" style="height: 500px; margin-top: 20px;"></div>
+
+    <script>
+        var map = L.map('map').setView([28.6139, 77.2090], 12); // Center on New Delhi
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        var marker;
+        function onMapClick(e) {
+            if (marker) map.removeLayer(marker);
+            marker = L.marker(e.latlng).addTo(map);
+            document.getElementById('lat').value = e.latlng.lat.toFixed(6);
+            document.getElementById('lng').value = e.latlng.lng.toFixed(6);
+        }
+        map.on('click', onMapClick);
+    </script>
+</body>
+</html>

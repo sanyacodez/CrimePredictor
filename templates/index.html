@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crime Risk Predictor</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        /* Reset */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: #f0f4f8;
+            color: #333;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #1a237e;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #37474f;
+        }
+
+        select {
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            transition: border-color 0.2s;
+        }
+
+        select:focus {
+            border-color: #1a237e;
+            outline: none;
+        }
+
+        button {
+            padding: 12px;
+            font-size: 1rem;
+            background-color: #1a237e;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0d174d;
+        }
+
+        #map {
+            height: 450px;
+            width: 100%;
+            margin-top: 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+        }
+
+        .note {
+            font-size: 0.95rem;
+            color: #555;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Crime Risk Prediction</h2>
+
+        <form action="/predict" method="POST" id="crimeForm">
+            <input type="hidden" name="lat" id="lat" required>
+            <input type="hidden" name="lng" id="lng" required>
+
+            <div>
+                <label for="dayofweek">Select Day of the Week:</label>
+                <select name="dayofweek" id="dayofweek" required>
+                    <option value="">-- Choose a Day --</option>
+                    <option value="0">Monday</option>
+                    <option value="1">Tuesday</option>
+                    <option value="2">Wednesday</option>
+                    <option value="3">Thursday</option>
+                    <option value="4">Friday</option>
+                    <option value="5">Saturday</option>
+                    <option value="6">Sunday</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="hour">Select Hour of the Day (0-23):</label>
+                <select name="hour" id="hour" required></select>
+            </div>
+
+            <button type="submit">Predict Crime Risk</button>
+
+            <p class="note">Click on the map to select your location before submitting.</p>
+        </form>
+
+        <div id="map"></div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Populate hour dropdown
+        const hourSelect = document.getElementById("hour");
+        for (let h = 0; h < 24; h++) {
+            const option = document.createElement("option");
+            option.value = h;
+            option.text = `${h}:00`;
+            hourSelect.appendChild(option);
+        }
+
+        // Initialize map
+        const map = L.map('map').setView([28.6139, 77.2090], 11); // Delhi center
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        let marker;
+
+        // Map click event
+        map.on('click', function(e) {
+            const lat = e.latlng.lat.toFixed(6);
+            const lng = e.latlng.lng.toFixed(6);
+
+            document.getElementById('lat').value = lat;
+            document.getElementById('lng').value = lng;
+
+            if (marker) {
+                map.removeLayer(marker);
+            }
+
+            marker = L.marker([lat, lng]).addTo(map)
+                     .bindPopup("Selected Location")
+                     .openPopup();
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - View Reports</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            background-color: #f9f9f9;
+        }
+        h2 {
+            text-align: center;
+            color: #1a237e;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+        th {
+            background-color: #1a237e;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <h2>Crime Prediction Reports</h2>
+    {% if reports %}
+    <table>
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Day</th>
+                <th>Hour</th>
+                <th>Prediction</th>
+                <th>Safety</th>
+                <th>Top Causes</th>
+                <th>Suggestions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in reports %}
+            <tr>
+                <td>{{ r.timestamp }}</td>
+                <td>{{ r.latitude }}</td>
+                <td>{{ r.longitude }}</td>
+                <td>{{ r.dayofweek }}</td>
+                <td>{{ r.hour }}</td>
+                <td>{{ r.crime_prediction }}</td>
+                <td>{{ r.safety_status }}</td>
+                <td>{{ r.top_causes | join(', ') }}</td>
+                <td>{{ r.suggestions | join(', ') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No reports submitted yet.</p>
+    {% endif %}
+</body>
+</html>

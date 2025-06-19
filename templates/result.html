@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Crime Prediction Result</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f2f2f2;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .col {
+            flex: 1 1 45%;
+            min-width: 300px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 10px 18px;
+            background-color: #5c6bc0;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+        }
+
+        a:hover {
+            background-color: #3f51b5;
+        }
+
+        .toggle-btn {
+            background-color: transparent;
+            border: none;
+            color: #3f51b5;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-top: 5px;
+            padding: 0;
+            text-decoration: underline;
+        }
+
+        .collapsible {
+            display: none;
+            margin-top: 10px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Crime Prediction Result</h2>
+    <div class="row">
+        <!-- Column 1 -->
+        <div class="col">
+            <div class="section">
+                <p><span class="label">Location:</span> {{ location }}</p>
+                <p><span class="label">Predicted Crime Risk Level:</span> {{ crime }}</p>
+                <p><span class="label">Overall Safety Status:</span> {{ safety }}</p>
+            </div>
+
+            {% if causes %}
+            <div class="section">
+                <p class="label">Common Crime Causes:</p>
+                <button class="toggle-btn" onclick="toggleSection('causesSection')">Show/Hide Causes</button>
+                <div id="causesSection" class="collapsible">
+                    <ul>
+                        {% for cause in causes %}
+                            <li>
+                                <strong>{{ cause }}</strong>
+                                {% if crime_action_map and cause in crime_action_map %}
+                                    <br><em>Tip:</em> {{ crime_action_map[cause] }}
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Column 2 -->
+        <div class="col">
+            {% if crime_percentages %}
+            <div class="section">
+                <p class="label">Crime Percentage Breakdown:</p>
+                <ul>
+                    {% for crime, percent in crime_percentages.items() %}
+                        <li>{{ crime }} – {{ percent }}%</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Suggestions Section -->
+    {% if suggestions %}
+    <div class="section">
+        <h3>Safety Improvement Suggestions</h3>
+        <ul>
+            {% for suggestion in suggestions %}
+                <li>{{ suggestion }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <div style="text-align: center;">
+        <a href="/">🔙 Go Back</a>
+    </div>
+</div>
+
+<script>
+    function toggleSection(id) {
+        const section = document.getElementById(id);
+        section.style.display = section.style.display === 'none' || !section.style.display ? 'block' : 'none';
+    }
+</script>
+
+</body>
+</html>
